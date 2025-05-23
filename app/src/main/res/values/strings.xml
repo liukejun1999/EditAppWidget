@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">EditAppWidget</string>
+    <string name="widget_name_hint">请输入小部件名称</string>
+    <string name="select_icon">选择图标</string>
+    <string name="save_configuration">保存配置</string>
+    <string name="select_widget_template">选择小部件模板</string>
+</resources>

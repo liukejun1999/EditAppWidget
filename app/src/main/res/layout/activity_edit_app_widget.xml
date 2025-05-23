@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:spacing="16dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:text="编辑小部件"
+            android:textSize="24sp"
+            android:textStyle="bold" />
+
+        <!-- 小部件名称 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="110dp"
+                android:layout_height="41dp"
+                android:text="小部件名称:"
+                android:textSize="16sp" />
+
+            <EditText
+                android:id="@+id/widget_name_edit_text"
+                android:layout_width="268dp"
+                android:layout_height="63dp"
+                android:hint="请输入小部件名称"
+                android:maxLength="20" />
+        </LinearLayout>
+
+        <!-- 小部件尺寸 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="110dp"
+                android:layout_height="51dp"
+                android:text="小部件尺寸:"
+                android:textSize="16sp" />
+
+            <Spinner
+                android:id="@+id/widget_size_spinner"
+                android:layout_width="268dp"
+                android:layout_height="62dp"
+                android:baselineAligned="false" />
+        </LinearLayout>
+
+        <!-- 小部件图标 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="110dp"
+                android:layout_height="match_parent"
+                android:text="小部件图标:"
+                android:textSize="16sp" />
+
+            <Button
+                android:id="@+id/select_icon_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:text="选择图标" />
+        </LinearLayout>
+
+        <!-- 触发方式 -->
+
+        <ImageView
+            android:id="@+id/widget_icon_image_view"
+            android:layout_width="160dp"
+            android:layout_height="90dp"
+            android:layout_gravity="center_horizontal"
+            android:padding="10dp"
+            android:src="@mipmap/ic_launcher" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="110dp"
+                android:layout_height="match_parent"
+                android:text="触发方式:"
+                android:textSize="16sp" />
+
+            <RadioGroup
+                android:id="@+id/trigger_action_radio_group"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <RadioButton
+                    android:id="@+id/click_radio_button"
+                    android:layout_width="match_parent"
+                    android:layout_height="31dp"
+                    android:checked="true"
+                    android:text="点击" />
+            </RadioGroup>
+        </LinearLayout>
+
+        <!-- 反馈方式 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="110dp"
+                android:layout_height="wrap_content"
+                android:text="反馈方式:"
+                android:textSize="16sp" />
+
+            <RadioGroup
+                android:id="@+id/feedback_action_radio_group"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <RadioButton
+                    android:id="@+id/launch_app_radio_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checked="true"
+                    android:text="跳转应用程序" />
+            </RadioGroup>
+        </LinearLayout>
+
+        <!-- 选择应用 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="跳转应用:"
+                android:textSize="16sp" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/app_list_recycler_view"
+                android:layout_width="match_parent"
+                android:layout_height="236dp"
+                android:layout_marginTop="8dp" />
+        </LinearLayout>
+
+        <!-- 保存按钮 -->
+        <Button
+            android:id="@+id/save_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="保存配置"
+            android:textSize="18sp" />
+    </LinearLayout>
+</ScrollView>
