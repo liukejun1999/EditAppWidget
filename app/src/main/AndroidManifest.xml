@@ -44,6 +44,12 @@
                 android:name="android.appwidget.provider"
                 android:resource="@xml/custom_appwidget_info" />
         </receiver>
+
+        <!--  已保存的小部件配置Activity      -->
+        <activity
+            android:name=".SavedWidgetConfigsActivity"
+            android:exported="false">
+        </activity>
     </application>
 
 </manifest>

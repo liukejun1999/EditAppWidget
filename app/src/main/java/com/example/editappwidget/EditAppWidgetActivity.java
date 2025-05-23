@@ -119,6 +119,15 @@ public class EditAppWidgetActivity extends AppCompatActivity {
 
         // 使用Context.MODE_PRIVATE替代MODE_PRIVATE
         sharedPreferences = getSharedPreferences("WidgetConfigs", Context.MODE_PRIVATE);
+
+        Button viewSavedConfigsButton = findViewById(R.id.view_saved_configs_button);
+        viewSavedConfigsButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(EditAppWidgetActivity.this, SavedWidgetConfigsActivity.class);
+                startActivity(intent);
+            }
+        });
     }
 
     private void initAppList() {
