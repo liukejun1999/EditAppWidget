@@ -1,5 +1,6 @@
 package com.example.editappwidget;
 
+import android.util.Base64;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -26,6 +27,7 @@ import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import java.io.IOException;
@@ -33,6 +35,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.io.ByteArrayOutputStream;
 
 public class EditAppWidgetActivity extends AppCompatActivity {
 
@@ -53,53 +56,35 @@ public class EditAppWidgetActivity extends AppCompatActivity {
     private SharedPreferences sharedPreferences;
 
     // 注册Activity结果回调
-    private ActivityResultLauncher<Intent> imagePickerLauncher;
+    private ActivityResultLauncher<String> imagePickerLauncher;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_app_widget);
-
-        // 初始化Activity结果回调
-        imagePickerLauncher = registerForActivityResult(
-                new ActivityResultContracts.StartActivityForResult(),
-                result -> {
-                    if (result.getResultCode() == RESULT_OK && result.getData() != null) {
-                        Uri uri = result.getData().getData();
-                        try {
-                            InputStream inputStream = getContentResolver().openInputStream(uri);
-                            selectedIconBitmap = BitmapFactory.decodeStream(inputStream);
-                            widgetIconImageView.setImageBitmap(selectedIconBitmap);
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }
-        );
-
-        // 初始化视图组件
-        initViews();
-
-        // 初始化应用列表
-        initAppList();
-
-        // 初始化尺寸选择器
-        initSizeSpinner();
-
-        // 设置图标选择按钮点击事件
-        selectIconButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                openImageSelector();
-            }
+        
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        
+        // 设置返回按钮点击事件（左上角箭头）
+        toolbar.setNavigationOnClickListener(v -> {
+            finish(); // 关闭当前页面，自动返回上一级（我的小部件页面）
         });
-
-        // 设置保存按钮点击事件
-        saveButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                saveWidgetConfiguration();
-            }
+    
+        // 新增：初始化关键组件
+        initViews();          // 绑定控件
+        initAppList();        // 加载应用列表
+        initSizeSpinner();    // 初始化尺寸选择器
+        initImagePickerLauncher(); // 注册图片选择器
+    
+        // 保存按钮点击事件
+        Button saveButton = findViewById(R.id.save_button);
+        // 修改为调用正确的保存方法
+        saveButton.setOnClickListener(v -> {
+            // 执行保存逻辑（如存储配置到数据库/SharedPreferences）
+            saveWidgetConfiguration(); 
+            // 假设保存方法中已经处理了错误情况，这里直接关闭页面
+            finish(); // 关闭页面，返回我的小部件页面
         });
     }
 
@@ -120,14 +105,8 @@ public class EditAppWidgetActivity extends AppCompatActivity {
         // 使用Context.MODE_PRIVATE替代MODE_PRIVATE
         sharedPreferences = getSharedPreferences("WidgetConfigs", Context.MODE_PRIVATE);
 
-        Button viewSavedConfigsButton = findViewById(R.id.view_saved_configs_button);
-        viewSavedConfigsButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(EditAppWidgetActivity.this, SavedWidgetConfigsActivity.class);
-                startActivity(intent);
-            }
-        });
+        // 新增：绑定图标选择按钮点击事件
+        selectIconButton.setOnClickListener(v -> openImageSelector());
     }
 
     private void initAppList() {
@@ -172,17 +151,8 @@ public class EditAppWidgetActivity extends AppCompatActivity {
     }
 
     private void openImageSelector() {
-        Intent intent = new Intent();
-        intent.setType("image/*");
-        intent.setAction(Intent.ACTION_GET_CONTENT);
-        // 使用ActivityResultLauncher替代startActivityForResult
-        imagePickerLauncher.launch(Intent.createChooser(intent, "选择图标"));
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        // 保留原方法，但空实现，因为我们使用了ActivityResultLauncher
-        super.onActivityResult(requestCode, resultCode, data);
+        // 修正：直接传入 MIME 类型 "image/*"，无需手动创建 Intent
+        imagePickerLauncher.launch("image/*");
     }
 
     private void saveWidgetConfiguration() {
@@ -223,8 +193,14 @@ public class EditAppWidgetActivity extends AppCompatActivity {
         editor.putString("widget_" + widgetId + "_feedback_action", feedbackAction);
         editor.putString("widget_" + widgetId + "_app_package", selectedAppPackageName);
 
-        // 保存图标（这里保存为Base64编码，实际应用中可能需要更高效的方法）
-        // 此处简化处理，实际应用中建议使用文件存储或ContentProvider
+        // 保存图标（Base64编码）
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        selectedIconBitmap.compress(Bitmap.CompressFormat.PNG, 100, baos);
+        byte[] iconBytes = baos.toByteArray();
+        String iconBase64 = Base64.encodeToString(iconBytes, Base64.DEFAULT);
+
+        // 保存配置到SharedPreferences（新增图标字段）
+        editor.putString("widget_" + widgetId + "_icon", iconBase64); // 新增图标保存
         editor.apply();
 
         Toast.makeText(this, "小部件配置已保存", Toast.LENGTH_SHORT).show();
@@ -245,5 +221,28 @@ public class EditAppWidgetActivity extends AppCompatActivity {
             return "launch_app";
         }
         return "launch_app"; // 默认返回启动应用
+    }
+
+    // 新增：初始化图片选择器Launcher的方法
+    private void initImagePickerLauncher() {
+        imagePickerLauncher = registerForActivityResult(
+                new ActivityResultContracts.GetContent(),
+                result -> {
+                    if (result != null) {
+                        ImageView widgetIconImageView = findViewById(R.id.widget_icon_image_view);
+                        widgetIconImageView.setImageURI(result);
+                        // 新增：保存选中的 Bitmap（解决后续保存图标时的空值问题）
+                        try (InputStream inputStream = getContentResolver().openInputStream(result)) {
+                            if (inputStream != null) {
+                                selectedIconBitmap = BitmapFactory.decodeStream(inputStream);
+                            }
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                            // 添加用户提示
+                            Toast.makeText(EditAppWidgetActivity.this, "图标选择失败，请重试", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                }
+        );
     }
 }

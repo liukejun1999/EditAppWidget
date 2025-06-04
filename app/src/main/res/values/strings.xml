@@ -5,4 +5,9 @@
     <string name="select_icon">选择图标</string>
     <string name="save_configuration">保存配置</string>
     <string name="select_widget_template">选择小部件模板</string>
+    <string name="widget_name">名称: %s</string>
+    <string name="widget_size">尺寸: %s</string>
+    <string name="trigger_action">触发方式: %s</string>
+    <string name="feedback_action">反馈方式: %s</string>
+    <string name="target_app_name">应用: %s</string>
 </resources>

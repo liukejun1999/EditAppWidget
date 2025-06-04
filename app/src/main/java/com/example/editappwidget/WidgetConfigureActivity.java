@@ -14,6 +14,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class WidgetConfigureActivity extends AppCompatActivity {
+    // 提取常量
+    private static final String PREFS_NAME = "WidgetConfigs";
+    private static final String WIDGET_NAME_PREFIX = "widget_";
+    private static final String WIDGET_NAME_SUFFIX = "_name";
+    private static final String APPWIDGET_WIDGET_ID_PREFIX = "appwidget_";
+    private static final String APPWIDGET_WIDGET_ID_SUFFIX = "_widget_id";
 
     private int appWidgetId = AppWidgetManager.INVALID_APPWIDGET_ID;
     private ListView widgetTemplatesListView;
@@ -61,16 +67,17 @@ public class WidgetConfigureActivity extends AppCompatActivity {
         widgetTemplateIds = new ArrayList<>();
         widgetTemplateNames = new ArrayList<>();
 
-        SharedPreferences prefs = getSharedPreferences("WidgetConfigs", MODE_PRIVATE);
+        SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
 
         // 遍历所有保存的小部件配置
         for (String key : prefs.getAll().keySet()) {
-            if (key.startsWith("widget_") && key.endsWith("_name")) {
-                String widgetId = key.substring(7, key.length() - 5);
+            if (key.startsWith(WIDGET_NAME_PREFIX) && key.endsWith(WIDGET_NAME_SUFFIX)) {
+                String widgetId = key.substring(WIDGET_NAME_PREFIX.length(), key.length() - WIDGET_NAME_SUFFIX.length());
                 String widgetName = prefs.getString(key, "未命名");
-
-                widgetTemplateIds.add(widgetId);
-                widgetTemplateNames.add(widgetName);
+                if (widgetName != null) {
+                    widgetTemplateIds.add(widgetId);
+                    widgetTemplateNames.add(widgetName);
+                }
             }
         }
 
@@ -86,14 +93,19 @@ public class WidgetConfigureActivity extends AppCompatActivity {
 
     private void saveWidgetConfiguration(String widgetId) {
         // 保存appWidgetId与widgetId的关联
-        SharedPreferences prefs = getSharedPreferences("WidgetConfigs", MODE_PRIVATE);
+        SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
         SharedPreferences.Editor editor = prefs.edit();
-        editor.putString("appwidget_" + appWidgetId + "_widget_id", widgetId);
+        editor.putString(APPWIDGET_WIDGET_ID_PREFIX + appWidgetId + APPWIDGET_WIDGET_ID_SUFFIX, widgetId);
         editor.apply();
 
         // 更新小部件
-        AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(this);
-        CustomAppWidgetProvider.updateAppWidget(this, appWidgetManager, appWidgetId);
+        try {
+            AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(this);
+            CustomAppWidgetProvider.updateAppWidget(this, appWidgetManager, appWidgetId);
+        } catch (Exception e) {
+            Toast.makeText(this, "更新小部件失败", Toast.LENGTH_SHORT).show();
+            e.printStackTrace();
+        }
 
         // 设置结果并结束Activity
         Intent resultValue = new Intent();
